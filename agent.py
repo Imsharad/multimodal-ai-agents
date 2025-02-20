@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 from dotenv import load_dotenv
+from typing import Annotated
+import aiohttp
 
 from livekit import rtc
 from livekit.agents import (
@@ -35,13 +37,12 @@ def run_multimodal_agent(ctx: JobContext, participant: rtc.RemoteParticipant):
     logger.info("starting multimodal agent")
 
     model = openai.realtime.RealtimeModel(
-        model="gpt-4o-realtime-preview-2024-12-17",
-        instructions=(
-            "You are a voice assistant created by LiveKit. Your interface with users will be voice. "
-            "You should use short and concise responses, and avoiding usage of unpronouncable punctuation. "
-            "You were created as a demo to showcase the capabilities of LiveKit's agents framework."
+        voice="alloy",
+        temperature=0.8,
+        instructions="You are a helpful assistant. You can use functions to get real-time information. When the user asks about the weather, use the `get_weather` function to fetch the weather information and respond to the user with the weather details.  Greet the user and help them with their requests.",
+        turn_detection=openai.realtime.ServerVadOptions(
+            threshold=0.6, prefix_padding_ms=200, silence_duration_ms=500
         ),
-        modalities=["audio", "text"],
     )
 
     # create a chat context with chat history, these will be synchronized with the server
@@ -52,6 +53,28 @@ def run_multimodal_agent(ctx: JobContext, participant: rtc.RemoteParticipant):
         "Greet the user with a friendly greeting and ask how you can help them today.",
         role="assistant",
     )
+
+    fnc_ctx = llm.FunctionContext()
+
+    @fnc_ctx.ai_callable()
+    async def get_weather(
+        location: Annotated[
+            str, llm.TypeInfo(description="The location to get the weather for")
+        ],
+    ):
+        """Called when the user asks about the weather. This function will return the weather for the given location."""
+        logger.info(f"getting weather for {location}")
+        url = f"https://wttr.in/{location}?format=%C+%t"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    weather_data = await response.text()
+                    # response from the function call is returned to the LLM
+                    return f"The weather in {location} is {weather_data}."
+                else:
+                    raise Exception(
+                        f"Failed to get weather data, status code: {response.status}"
+                    )
 
     agent = MultimodalAgent(
         model=model,
