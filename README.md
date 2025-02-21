@@ -61,3 +61,17 @@ This agent requires a frontend application to communicate with. You can use one 
 - `src/functions/tools.py`: This file defines the `AssistantFunctions` class, which encapsulates the tools and functionalities that the multimodal agent can use. Currently, it includes an example function `get_weather` to demonstrate how to integrate external tools with the agent.
 
 
+
+## Model Selection
+
+You can choose between OpenAI and Gemini models by setting the `MODEL_TYPE` environment variable in `.env.local`.
+
+- To use OpenAI model, set `MODEL_TYPE="openai"`. This is the default if the variable is not set.
+- To use Gemini model, set `MODEL_TYPE="gemini"`.
+
+Make sure you have the corresponding API key set in `.env.local`:
+
+- `OPENAI_API_KEY` for OpenAI model.
+- `GEMINI_API_KEY` for Gemini model.
+
+
