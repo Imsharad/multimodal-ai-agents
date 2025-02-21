@@ -46,7 +46,18 @@ lk app env
 Run the agent:
 
 ```console
-python3 run.py  dev
+python3 main.py  dev
 ```
 
 This agent requires a frontend application to communicate with. You can use one of our example frontends in [livekit-examples](https://github.com/livekit-examples/), create your own following one of our [client quickstarts](https://docs.livekit.io/realtime/quickstarts/), or test instantly against one of our hosted [Sandbox](https://cloud.livekit.io/projects/p_/sandbox) frontends.
+
+
+
+### Key Files
+### Key Files
+
+- `main.py`: This is the main entry point of the application. It uses the LiveKit Agents CLI to run the agent worker, setting up the necessary options and invoking the `entrypoint` function defined in `src/core.py`.
+- `src/core.py`: This file contains the core logic of the multimodal voice agent. It defines the `entrypoint` function, which handles connecting to a LiveKit room, waiting for a participant, and initiating the multimodal agent. It also defines the `run_multimodal_agent` function responsible for creating and starting the `MultimodalAgent`.
+- `src/functions/tools.py`: This file defines the `AssistantFunctions` class, which encapsulates the tools and functionalities that the multimodal agent can use. Currently, it includes an example function `get_weather` to demonstrate how to integrate external tools with the agent.
+
+
