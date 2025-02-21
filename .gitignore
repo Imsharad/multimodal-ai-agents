@@ -6,6 +6,11 @@ venv/
 *.pyo
 *.pyd
 __pycache__/
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
 .pytest_cache/
 .venv/
 env/
