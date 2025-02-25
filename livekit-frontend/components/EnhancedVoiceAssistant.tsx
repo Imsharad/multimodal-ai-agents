@@ -92,6 +92,16 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
     disconnected: 'ring-gray-400'
   };
 
+  // Define shadow effects for different states
+  const shadowEffects = {
+    idle: 'shadow-sm',
+    listening: 'shadow-lg shadow-blue-500/30',
+    thinking: 'shadow-lg shadow-purple-500/30',
+    speaking: 'shadow-lg shadow-green-500/30',
+    connecting: 'shadow-lg shadow-yellow-500/30',
+    disconnected: 'shadow-none'
+  };
+
   // Get status text based on state
   const getStatusText = () => {
     switch (state) {
@@ -113,7 +123,7 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="absolute top-0 text-sm text-gray-600 font-medium mb-2"
+          className="absolute top-0 text-sm text-gray-600 font-medium mb-2 backdrop-blur-sm bg-white/30 px-3 py-1 rounded-full"
         >
           {getStatusText()}
         </motion.div>
@@ -121,10 +131,41 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
 
       {/* Main animation container */}
       <motion.div
-        className={`relative flex items-center justify-center p-8 rounded-full ring-4 ${ringColors[state as keyof typeof ringColors]}`}
+        className={`relative flex items-center justify-center p-8 rounded-full ring-4 ${ringColors[state as keyof typeof ringColors]} ${shadowEffects[state as keyof typeof shadowEffects]}`}
         variants={containerVariants}
         animate={currentVariant}
       >
+        {/* Outer ring animations */}
+        {(state === 'listening' || state === 'speaking' || state === 'thinking') && (
+          <>
+            <motion.div
+              className={`absolute w-full h-full rounded-full ${stateColors[state as keyof typeof stateColors]} opacity-10`}
+              animate={{
+                scale: [1, 1.15, 1],
+                opacity: [0.1, 0.05, 0.1]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            <motion.div
+              className={`absolute w-full h-full rounded-full ${stateColors[state as keyof typeof stateColors]} opacity-5`}
+              animate={{
+                scale: [1.05, 1.25, 1.05],
+                opacity: [0.05, 0.02, 0.05]
+              }}
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.2
+              }}
+            />
+          </>
+        )}
+
         {/* Background pulse animation for active states */}
         {(state === 'listening' || state === 'speaking' || state === 'thinking') && (
           <motion.div
@@ -142,6 +183,9 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
             }}
           />
         )}
+
+        {/* Glass effect background */}
+        <div className="absolute inset-0 rounded-full bg-white/10 backdrop-blur-sm"></div>
 
         {/* Company logo */}
         <CompanyLogo className="absolute z-10" />
@@ -164,13 +208,13 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
           />
         </div>
 
-        {/* State indicator dot */}
+        {/* State indicator dot with pulse effect */}
         <motion.div 
           className={`absolute bottom-0 w-4 h-4 rounded-full ${stateColors[state as keyof typeof stateColors]}`}
           initial={{ scale: 0.8, opacity: 0.7 }}
           animate={{ 
             scale: [0.8, 1, 0.8], 
-            opacity: [0.7, 1, 0.7] 
+            opacity: [0.7, 1, 0.7]
           }}
           transition={{ 
             duration: 2, 
@@ -180,12 +224,19 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
         />
       </motion.div>
 
-      {/* State description */}
+      {/* State description with animated background */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="mt-4 text-sm text-gray-500"
+        className={`mt-4 text-sm px-4 py-1.5 rounded-full backdrop-blur-sm ${
+          state === 'listening' ? 'bg-blue-50/50 text-blue-700' : 
+          state === 'thinking' ? 'bg-purple-50/50 text-purple-700' : 
+          state === 'speaking' ? 'bg-green-50/50 text-green-700' : 
+          state === 'connecting' ? 'bg-yellow-50/50 text-yellow-700' : 
+          state === 'disconnected' ? 'bg-gray-50/50 text-gray-700' : 
+          'bg-gray-50/50 text-gray-700'
+        }`}
       >
         {state === 'listening' && "I'm listening to you..."}
         {state === 'thinking' && "I'm processing your request..."}

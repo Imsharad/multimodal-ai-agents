@@ -6,6 +6,21 @@
   --lk-va-bar-width: 6px;
   --lk-control-bar-height: unset;
   --lk-va-bar-gap: 4px;
+  
+  /* Custom animation variables */
+  --animation-speed-slow: 3s;
+  --animation-speed-medium: 1.5s;
+  --animation-speed-fast: 0.5s;
+}
+
+/* Global styles for smoother animations */
+* {
+  @apply transition-all duration-300;
+}
+
+/* Enhanced visualizer styles */
+.agent-visualizer {
+  @apply flex items-center justify-center gap-1;
 }
 
 .agent-visualizer > .lk-audio-bar {
@@ -13,35 +28,41 @@
   margin: 0 var(--lk-va-bar-gap);
   border-radius: 4px;
   transition: height 0.15s ease-in-out, background-color 0.3s ease;
+  backdrop-filter: blur(4px);
 }
 
 /* State-specific visualizer styles */
 .listening-visualizer > .lk-audio-bar {
   background-color: #3B82F6 !important; /* Blue */
   box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+  animation: pulse-blue 2s infinite alternate;
 }
 
 .thinking-visualizer > .lk-audio-bar {
   background-color: #8B5CF6 !important; /* Purple */
   box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+  animation: pulse-purple 2.5s infinite alternate;
 }
 
 .speaking-visualizer > .lk-audio-bar {
   background-color: #10B981 !important; /* Green */
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+  animation: pulse-green 1.8s infinite alternate;
 }
 
 .idle-visualizer > .lk-audio-bar {
   background-color: #9CA3AF !important; /* Gray */
   box-shadow: 0 0 4px rgba(156, 163, 175, 0.3);
+  animation: pulse-gray 3s infinite alternate;
 }
 
+/* Control bar styling */
 .lk-agent-control-bar {
-  @apply border-t-0 p-0 h-min mr-4;
+  @apply border-t-0 p-0 h-min mr-4 flex gap-2;
 }
 
 .lk-disconnect-button {
-  @apply h-[36px] hover:bg-[#6b221a] hover:text-[white] bg-[#31100c] border-[#6b221a];
+  @apply h-[36px] hover:bg-[#6b221a] hover:text-[white] bg-[#31100c] border-[#6b221a] rounded-full;
 }
 
 /* Add smooth transitions for all interactive elements */
@@ -53,5 +74,60 @@ button,
 
 /* Enhance the start conversation button */
 button.bg-white {
-  @apply shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300;
+  @apply shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 rounded-full px-6 py-2 font-medium;
+}
+
+/* Custom animations */
+@keyframes pulse-blue {
+  0% {
+    opacity: 0.7;
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.7);
+  }
+}
+
+@keyframes pulse-purple {
+  0% {
+    opacity: 0.7;
+    box-shadow: 0 0 5px rgba(139, 92, 246, 0.3);
+  }
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.7);
+  }
+}
+
+@keyframes pulse-green {
+  0% {
+    opacity: 0.7;
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+  }
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+  }
+}
+
+@keyframes pulse-gray {
+  0% {
+    opacity: 0.5;
+    box-shadow: 0 0 2px rgba(156, 163, 175, 0.2);
+  }
+  100% {
+    opacity: 0.8;
+    box-shadow: 0 0 8px rgba(156, 163, 175, 0.4);
+  }
+}
+
+/* Glass morphism effects */
+.glass-effect {
+  @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-lg;
+}
+
+/* Main container styling */
+main[data-lk-theme="default"] {
+  @apply bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800;
 }
