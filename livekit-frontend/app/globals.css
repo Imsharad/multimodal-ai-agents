@@ -3,12 +3,37 @@
 @tailwind utilities;
 
 :root {
-  --lk-va-bar-width: 72px;
+  --lk-va-bar-width: 6px;
   --lk-control-bar-height: unset;
+  --lk-va-bar-gap: 4px;
 }
 
 .agent-visualizer > .lk-audio-bar {
-  width: 72px;
+  width: var(--lk-va-bar-width);
+  margin: 0 var(--lk-va-bar-gap);
+  border-radius: 4px;
+  transition: height 0.15s ease-in-out, background-color 0.3s ease;
+}
+
+/* State-specific visualizer styles */
+.listening-visualizer > .lk-audio-bar {
+  background-color: #3B82F6 !important; /* Blue */
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+.thinking-visualizer > .lk-audio-bar {
+  background-color: #8B5CF6 !important; /* Purple */
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+}
+
+.speaking-visualizer > .lk-audio-bar {
+  background-color: #10B981 !important; /* Green */
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.idle-visualizer > .lk-audio-bar {
+  background-color: #9CA3AF !important; /* Gray */
+  box-shadow: 0 0 4px rgba(156, 163, 175, 0.3);
 }
 
 .lk-agent-control-bar {
@@ -17,4 +42,16 @@
 
 .lk-disconnect-button {
   @apply h-[36px] hover:bg-[#6b221a] hover:text-[white] bg-[#31100c] border-[#6b221a];
+}
+
+/* Add smooth transitions for all interactive elements */
+button, 
+.lk-audio-bar,
+.lk-disconnect-button {
+  transition: all 0.3s ease;
+}
+
+/* Enhance the start conversation button */
+button.bg-white {
+  @apply shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300;
 }

@@ -16,6 +16,7 @@ import type { ConnectionDetails } from "./api/connection-details/route";
 import { NoAgentNotification } from "@/components/NoAgentNotification";
 import { CloseIcon } from "@/components/CloseIcon";
 import { useKrispNoiseFilter } from "@livekit/components-react/krisp";
+import { EnhancedVoiceAssistant } from "@/components/EnhancedVoiceAssistant";
 
 export default function Page() {
   const [connectionDetails, updateConnectionDetails] = useState<
@@ -60,7 +61,7 @@ export default function Page() {
         }}
         className="grid grid-rows-[2fr_1fr] items-center"
       >
-        <SimpleVoiceAssistant onStateChange={setAgentState} />
+        <EnhancedVoiceAssistant onStateChange={setAgentState} />
         <ControlBar
           onConnectButtonClicked={onConnectButtonClicked}
           agentState={agentState}
@@ -69,26 +70,6 @@ export default function Page() {
         <NoAgentNotification state={agentState} />
       </LiveKitRoom>
     </main>
-  );
-}
-
-function SimpleVoiceAssistant(props: {
-  onStateChange: (state: AgentState) => void;
-}) {
-  const { state, audioTrack } = useVoiceAssistant();
-  useEffect(() => {
-    props.onStateChange(state);
-  }, [props, state]);
-  return (
-    <div className="h-[300px] max-w-[90vw] mx-auto">
-      <BarVisualizer
-        state={state}
-        barCount={5}
-        trackRef={audioTrack}
-        className="agent-visualizer"
-        options={{ minHeight: 24 }}
-      />
-    </div>
   );
 }
 
