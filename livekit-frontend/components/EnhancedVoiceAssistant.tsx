@@ -9,9 +9,10 @@ interface EnhancedVoiceAssistantProps {
 
 /**
  * Enhanced voice assistant component with improved animations for different states
- * - Visual indicator for processing user's voice (listening state)
- * - Visual indicator for server connected and responding (thinking/speaking states)
- * - Idle animation when system is ready but not active
+ * - Visual indicator for processing user's voice (listening state - blue color)
+ * - Visual indicator for server connected and responding (thinking/speaking states - purple/green colors)
+ * - Idle state animation (subtle pulsing animation)
+ * - Accessible design with aria-live regions for screen readers
  */
 export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistantProps) {
   const { state, audioTrack } = useVoiceAssistant();
@@ -24,9 +25,9 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
   const containerVariants = {
     idle: {
       scale: [1, 1.02, 1],
-      opacity: [0.8, 0.9, 0.8],
+      opacity: [0.85, 0.95, 0.85],
       transition: { 
-        duration: 3, 
+        duration: 4, 
         repeat: Infinity, 
         repeatType: 'reverse' as const,
         ease: "easeInOut"
@@ -41,7 +42,7 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
       scale: [1, 1.03, 1],
       opacity: 1,
       transition: { 
-        duration: 1.5, 
+        duration: 1.8, 
         repeat: Infinity, 
         repeatType: 'reverse' as const,
         ease: "easeInOut"
@@ -54,7 +55,7 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
     },
     connecting: {
       scale: [1, 1.05, 1],
-      opacity: [0.6, 0.8, 0.6],
+      opacity: [0.7, 0.9, 0.7],
       transition: { 
         duration: 1.5, 
         repeat: Infinity, 
@@ -72,13 +73,13 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
   // Get the current animation variant based on state
   const currentVariant = state in containerVariants ? state : 'idle';
 
-  // Define colors for different states
+  // Define colors for different states - updated with more vibrant colors
   const stateColors = {
     idle: 'bg-gray-200',
     listening: 'bg-blue-500',
-    thinking: 'bg-purple-500',
-    speaking: 'bg-green-500',
-    connecting: 'bg-yellow-500',
+    thinking: 'bg-purple-600',
+    speaking: 'bg-emerald-500',
+    connecting: 'bg-amber-500',
     disconnected: 'bg-gray-400'
   };
 
@@ -86,19 +87,19 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
   const ringColors = {
     idle: 'ring-gray-200',
     listening: 'ring-blue-500',
-    thinking: 'ring-purple-500',
-    speaking: 'ring-green-500',
-    connecting: 'ring-yellow-500',
+    thinking: 'ring-purple-600',
+    speaking: 'ring-emerald-500',
+    connecting: 'ring-amber-500',
     disconnected: 'ring-gray-400'
   };
 
-  // Define shadow effects for different states
+  // Define shadow effects for different states - enhanced for better visual feedback
   const shadowEffects = {
-    idle: 'shadow-sm',
-    listening: 'shadow-lg shadow-blue-500/30',
-    thinking: 'shadow-lg shadow-purple-500/30',
-    speaking: 'shadow-lg shadow-green-500/30',
-    connecting: 'shadow-lg shadow-yellow-500/30',
+    idle: 'shadow-md',
+    listening: 'shadow-lg shadow-blue-500/40',
+    thinking: 'shadow-lg shadow-purple-600/40',
+    speaking: 'shadow-lg shadow-emerald-500/40',
+    connecting: 'shadow-lg shadow-amber-500/40',
     disconnected: 'shadow-none'
   };
 
@@ -114,38 +115,58 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
     }
   };
 
+  // Get aria label for screen readers
+  const getAriaLabel = () => {
+    switch (state) {
+      case 'listening': return 'AI assistant is listening to your voice';
+      case 'thinking': return 'AI assistant is processing your request';
+      case 'speaking': return 'AI assistant is responding to your query';
+      case 'connecting': return 'AI assistant is connecting';
+      case 'disconnected': return 'AI assistant is disconnected';
+      default: return 'AI assistant is ready to help';
+    }
+  };
+
   return (
     <div className="h-[300px] max-w-[90vw] mx-auto relative flex flex-col items-center justify-center">
-      {/* Status indicator */}
-      <AnimatePresence>
+      {/* Status indicator with improved animation */}
+      <AnimatePresence mode="wait">
         <motion.div
-          key="status-text"
+          key={`status-${state}`}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="absolute top-0 text-sm text-gray-600 font-medium mb-2 backdrop-blur-sm bg-white/30 px-3 py-1 rounded-full"
+          transition={{ duration: 0.3 }}
+          className="absolute top-0 text-sm font-medium mb-2 backdrop-blur-sm bg-white/40 px-3 py-1 rounded-full"
+          style={{ 
+            color: state === 'listening' ? '#2563eb' : 
+                   state === 'thinking' ? '#9333ea' : 
+                   state === 'speaking' ? '#10b981' : 
+                   state === 'connecting' ? '#f59e0b' : 
+                   state === 'disconnected' ? '#6b7280' : '#6b7280'
+          }}
         >
           {getStatusText()}
         </motion.div>
       </AnimatePresence>
 
-      {/* Main animation container */}
+      {/* Main animation container with improved visual effects */}
       <motion.div
         className={`relative flex items-center justify-center p-8 rounded-full ring-4 ${ringColors[state as keyof typeof ringColors]} ${shadowEffects[state as keyof typeof shadowEffects]}`}
         variants={containerVariants}
         animate={currentVariant}
       >
-        {/* Outer ring animations */}
+        {/* Outer ring animations - enhanced for better visual feedback */}
         {(state === 'listening' || state === 'speaking' || state === 'thinking') && (
           <>
             <motion.div
               className={`absolute w-full h-full rounded-full ${stateColors[state as keyof typeof stateColors]} opacity-10`}
               animate={{
-                scale: [1, 1.15, 1],
+                scale: [1, 1.2, 1],
                 opacity: [0.1, 0.05, 0.1]
               }}
               transition={{
-                duration: 2,
+                duration: state === 'listening' ? 1.5 : state === 'thinking' ? 2.2 : 1.8,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
@@ -153,11 +174,11 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
             <motion.div
               className={`absolute w-full h-full rounded-full ${stateColors[state as keyof typeof stateColors]} opacity-5`}
               animate={{
-                scale: [1.05, 1.25, 1.05],
+                scale: [1.05, 1.3, 1.05],
                 opacity: [0.05, 0.02, 0.05]
               }}
               transition={{
-                duration: 2.5,
+                duration: state === 'listening' ? 2 : state === 'thinking' ? 2.8 : 2.3,
                 repeat: Infinity,
                 ease: "easeInOut",
                 delay: 0.2
@@ -166,14 +187,14 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
           </>
         )}
 
-        {/* Background pulse animation for active states */}
+        {/* Background pulse animation for active states - improved timing and effects */}
         {(state === 'listening' || state === 'speaking' || state === 'thinking') && (
           <motion.div
             className={`absolute rounded-full ${stateColors[state as keyof typeof stateColors]} opacity-20`}
             initial={{ width: '100%', height: '100%' }}
             animate={{ 
-              width: ['100%', '120%', '100%'], 
-              height: ['100%', '120%', '100%'],
+              width: ['100%', '125%', '100%'], 
+              height: ['100%', '125%', '100%'],
               opacity: [0.2, 0.3, 0.2]
             }}
             transition={{ 
@@ -184,13 +205,13 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
           />
         )}
 
-        {/* Glass effect background */}
-        <div className="absolute inset-0 rounded-full bg-white/10 backdrop-blur-sm"></div>
+        {/* Enhanced glass effect background with subtle gradient */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm"></div>
 
-        {/* Company logo */}
+        {/* Company logo with improved positioning */}
         <CompanyLogo className="absolute z-10" />
 
-        {/* Voice visualizer */}
+        {/* Voice visualizer with enhanced styling for each state */}
         <div className={`relative z-0 ${state === 'disconnected' ? 'opacity-50' : 'opacity-100'}`}>
           <BarVisualizer
             state={state}
@@ -203,12 +224,12 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
             }`}
             options={{ 
               minHeight: 24,
-              maxHeight: state === 'speaking' ? 80 : state === 'listening' ? 60 : 40
+              maxHeight: state === 'speaking' ? 80 : state === 'listening' ? 65 : 40
             }}
           />
         </div>
 
-        {/* State indicator dot with pulse effect */}
+        {/* Enhanced state indicator dot with pulse effect */}
         <motion.div 
           className={`absolute bottom-0 w-4 h-4 rounded-full ${stateColors[state as keyof typeof stateColors]}`}
           initial={{ scale: 0.8, opacity: 0.7 }}
@@ -224,31 +245,35 @@ export function EnhancedVoiceAssistant({ onStateChange }: EnhancedVoiceAssistant
         />
       </motion.div>
 
-      {/* State description with animated background */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className={`mt-4 text-sm px-4 py-1.5 rounded-full backdrop-blur-sm ${
-          state === 'listening' ? 'bg-blue-50/50 text-blue-700' : 
-          state === 'thinking' ? 'bg-purple-50/50 text-purple-700' : 
-          state === 'speaking' ? 'bg-green-50/50 text-green-700' : 
-          state === 'connecting' ? 'bg-yellow-50/50 text-yellow-700' : 
-          state === 'disconnected' ? 'bg-gray-50/50 text-gray-700' : 
-          'bg-gray-50/50 text-gray-700'
-        }`}
-      >
-        {state === 'listening' && "I'm listening to you..."}
-        {state === 'thinking' && "I'm processing your request..."}
-        {state === 'speaking' && "I'm responding to your query..."}
-        {state === 'connecting' && "Establishing connection..."}
-        {state === 'disconnected' && "Click 'Start a conversation' to begin"}
-        {(state as string) === 'idle' && "I'm ready to assist you"}
-      </motion.div>
+      {/* State description with animated background and improved styling */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`description-${state}`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.3 }}
+          className={`mt-4 text-sm font-medium px-4 py-1.5 rounded-full backdrop-blur-sm ${
+            state === 'listening' ? 'bg-blue-50/70 text-blue-700' : 
+            state === 'thinking' ? 'bg-purple-50/70 text-purple-700' : 
+            state === 'speaking' ? 'bg-emerald-50/70 text-emerald-700' : 
+            state === 'connecting' ? 'bg-amber-50/70 text-amber-700' : 
+            state === 'disconnected' ? 'bg-gray-50/70 text-gray-700' : 
+            'bg-gray-50/70 text-gray-700'
+          }`}
+        >
+          {state === 'listening' && "I'm listening to you..."}
+          {state === 'thinking' && "I'm processing your request..."}
+          {state === 'speaking' && "I'm responding to your query..."}
+          {state === 'connecting' && "Establishing connection..."}
+          {state === 'disconnected' && "Click 'Start a conversation' to begin"}
+          {(state as string) === 'idle' && "I'm ready to assist you"}
+        </motion.div>
+      </AnimatePresence>
 
-      {/* Accessibility note: Add aria-live region for screen readers */}
-      <div className="sr-only" aria-live="polite">
-        AI Assistant is {getStatusText()}
+      {/* Accessibility: Enhanced aria-live region for screen readers */}
+      <div className="sr-only" aria-live="polite" role="status">
+        {getAriaLabel()}
       </div>
     </div>
   );
