@@ -3,7 +3,7 @@ from livekit import rtc
 from livekit.agents import AutoSubscribe, JobContext, llm, multimodal
 
 from .config import model
-from .functions.tools import AssistantFunctions
+from .functions.tools import UnifiedFunctions
 
 load_dotenv(dotenv_path=".env.local")
 
@@ -14,7 +14,7 @@ async def entrypoint(ctx: JobContext):
     
     # Create model-agnostic components
     chat_ctx = llm.ChatContext()
-    fnc_ctx = AssistantFunctions()
+    fnc_ctx = UnifiedFunctions()
     
     # Create the agent with selected model
     agent = multimodal.MultimodalAgent(
