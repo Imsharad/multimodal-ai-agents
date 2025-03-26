@@ -15,6 +15,11 @@ class UnifiedFunctions(llm.FunctionContext):
 
     # Gmail Functions - delegate to GmailMcpFunctions
     @llm.ai_callable()
+    async def check_gmail_auth_status(self) -> str:
+        """Checks if Gmail authentication is properly set up and provides instructions if not."""
+        return await self._gmail_functions.check_gmail_auth_status()
+
+    @llm.ai_callable()
     async def send_gmail(
         self,
         to: Annotated[List[str], llm.TypeInfo(description="List of recipient email addresses")],

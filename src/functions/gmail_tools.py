@@ -30,7 +30,7 @@ class GmailMcpFunctions(llm.FunctionContext):
                 print("2. Create an OAuth 2.0 Client ID (choose 'Desktop app' type)")
                 print("3. Download the JSON file and place it at ~/.gmail-mcp/gcp-oauth.keys.json")
                 print("4. Run 'cd Gmail-MCP-Server && node dist/index.js auth'")
-                return "Authentication required for Gmail MCP server. Follow the printed instructions."
+                return "authentication_required"
             
             cmd = ["node", "dist/index.js"]
             self._mcp_process = await asyncio.create_subprocess_exec(
@@ -42,8 +42,8 @@ class GmailMcpFunctions(llm.FunctionContext):
             # Wait for the server to start
             await asyncio.sleep(2)
             print("Gmail MCP server started")
-            return "Gmail MCP server started successfully"
-        return "Gmail MCP server already running"
+            return "server_started"
+        return "server_already_running"
 
     async def stop_mcp_server(self):
         """Stops the MCP server."""
@@ -53,6 +53,46 @@ class GmailMcpFunctions(llm.FunctionContext):
             await self._mcp_process.wait()
             self._mcp_process = None
             print("Gmail MCP server stopped")
+
+    @llm.ai_callable()
+    async def check_gmail_auth_status(self) -> str:
+        """
+        Checks if Gmail authentication is properly set up and provides instructions if not.
+        This should be called before attempting to use any Gmail functions.
+        """
+        # Create ~/.gmail-mcp directory if it doesn't exist
+        gmail_mcp_dir = os.path.expanduser("~/.gmail-mcp")
+        if not os.path.exists(gmail_mcp_dir):
+            os.makedirs(gmail_mcp_dir, exist_ok=True)
+            
+        # Check for required files
+        credentials_path = os.path.join(gmail_mcp_dir, "credentials.json")
+        oauth_keys_path = os.path.join(gmail_mcp_dir, "gcp-oauth.keys.json")
+        
+        if not os.path.exists(oauth_keys_path):
+            return """
+Gmail authentication is not set up. To set up Gmail access, you need to:
+
+1. Create a Google Cloud Project and enable the Gmail API
+2. Create an OAuth 2.0 Client ID (choose "Desktop app" type)
+3. Download the JSON file and rename it to "gcp-oauth.keys.json"
+4. Place this file in the "~/.gmail-mcp/" directory
+5. Run the authentication command: cd Gmail-MCP-Server && node dist/index.js auth
+
+Would you like me to help guide you through this process?
+"""
+        
+        if not os.path.exists(credentials_path):
+            return """
+OAuth keys are present, but you need to complete authentication.
+Run the following command to authenticate:
+
+cd Gmail-MCP-Server && node dist/index.js auth
+
+This will open a browser window where you can log in to your Google account and grant permissions.
+"""
+        
+        return "Gmail authentication is properly set up. You can use Gmail functions."
 
     @llm.ai_callable()
     async def send_gmail(
@@ -67,9 +107,9 @@ class GmailMcpFunctions(llm.FunctionContext):
         server_status = await self.start_mcp_server()
         
         # Check if server startup failed due to authentication
-        if "Authentication required" in server_status:
-            return server_status
-        
+        if server_status == "authentication_required":
+            return await self.check_gmail_auth_status()
+
         # Since we're using stdio transport for now, we'll directly call the Gmail MCP server
         gmail_mcp_dir = str(Path(__file__).parent.parent.parent / "Gmail-MCP-Server")
         
@@ -133,8 +173,8 @@ class GmailMcpFunctions(llm.FunctionContext):
         server_status = await self.start_mcp_server()
         
         # Check if server startup failed due to authentication
-        if "Authentication required" in server_status:
-            return server_status
+        if server_status == "authentication_required":
+            return await self.check_gmail_auth_status()
         
         gmail_mcp_dir = str(Path(__file__).parent.parent.parent / "Gmail-MCP-Server")
         
@@ -185,8 +225,8 @@ class GmailMcpFunctions(llm.FunctionContext):
         server_status = await self.start_mcp_server()
         
         # Check if server startup failed due to authentication
-        if "Authentication required" in server_status:
-            return server_status
+        if server_status == "authentication_required":
+            return await self.check_gmail_auth_status()
         
         gmail_mcp_dir = str(Path(__file__).parent.parent.parent / "Gmail-MCP-Server")
         
@@ -240,8 +280,8 @@ class GmailMcpFunctions(llm.FunctionContext):
         server_status = await self.start_mcp_server()
         
         # Check if server startup failed due to authentication
-        if "Authentication required" in server_status:
-            return server_status
+        if server_status == "authentication_required":
+            return await self.check_gmail_auth_status()
         
         gmail_mcp_dir = str(Path(__file__).parent.parent.parent / "Gmail-MCP-Server")
         
@@ -295,8 +335,8 @@ class GmailMcpFunctions(llm.FunctionContext):
         server_status = await self.start_mcp_server()
         
         # Check if server startup failed due to authentication
-        if "Authentication required" in server_status:
-            return server_status
+        if server_status == "authentication_required":
+            return await self.check_gmail_auth_status()
         
         gmail_mcp_dir = str(Path(__file__).parent.parent.parent / "Gmail-MCP-Server")
         
@@ -342,8 +382,8 @@ class GmailMcpFunctions(llm.FunctionContext):
         server_status = await self.start_mcp_server()
         
         # Check if server startup failed due to authentication
-        if "Authentication required" in server_status:
-            return server_status
+        if server_status == "authentication_required":
+            return await self.check_gmail_auth_status()
         
         gmail_mcp_dir = str(Path(__file__).parent.parent.parent / "Gmail-MCP-Server")
         
